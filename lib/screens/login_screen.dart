@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final String apiUrl = dotenv.get("API_URL");
 
-  final String authorizedEmail = dotenv.get("AUTHORIZED_EMAILS");
+  final String authorizedEmailUrl = dotenv.get("AUTHORIZED_EMAILS");
 
   @override
   void initState() {
@@ -46,26 +46,21 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final result = await ApiHelper.getWithRedirect(url: authorizedEmail);
+    final result = await ApiHelper.getWithRedirect(url: authorizedEmailUrl);
 
-    Map<String, dynamic>? user;
+    bool exists = result.any((item) => item["email"] == email);
 
-    try {
-      user = result.firstWhere((item) => item["email"] == email);
-    } catch (e) {
-      user = null;
-    }
+    if (!exists) {
+      debugPrint("Email does not exist");
 
-    if (user != null) {
-      if (user["sheeturl"] == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("User does not have access to the system"),
-          ),
-        );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Unauthorized email"),
+          backgroundColor: Colors.red,
+        ),
+      );
 
-        return;
-      }
+      return;
     }
 
     setState(() {
