@@ -33,6 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> login() async {
     FocusScope.of(context).unfocus();
 
+    final prefs = await SharedPreferences.getInstance();
+
     final email = emailController.text.trim().toLowerCase();
 
     final password = passwordController.text.trim();
@@ -49,6 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final result = await ApiHelper.getWithRedirect(url: authorizedEmailUrl);
 
     bool exists = result.any((item) => item["email"] == email);
+
+    String? role = prefs.getString("role");
+
+    debugPrint("CURRENT ROLE: $role");
 
     if (!exists) {
       debugPrint("Email does not exist");
@@ -121,8 +127,6 @@ class _LoginScreenState extends State<LoginScreen> {
           throw Exception("Invalid password");
         }
 
-        final prefs = await SharedPreferences.getInstance();
-
         await prefs.setString("userEmail", matchedUser["email"]);
 
         await prefs.setString("fullName", matchedUser["fullName"]);
@@ -144,7 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         // ROLE-BASED NAVIGATION
-        if (matchedUser["role"] == "ADMIN") {
+        if (matchedUser["role"] == "ADMIN" ||
+            matchedUser["role"] == "SUPERADMIN") {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

@@ -29,7 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   bool get isAdmin {
     final role = _userRole.toUpperCase();
-    return role == 'ADMIN' || role == 'OWNER';
+    return role == 'ADMIN' || role == 'OWNER' || role == 'SUPERADMIN';
   }
 
   @override
